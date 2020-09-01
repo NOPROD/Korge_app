@@ -17,4 +17,6 @@ apply<KorgeGradlePlugin>()
 
 korge {
 	id = "com.noprod.korgetest.korgeTest"
+	orientation = Orientation.PORTRAIT
+	supportShape()
 }
