@@ -16,7 +16,7 @@ suspend fun main() = Korge(Korge.Config(module = MyModule))
 object MyModule : Module() {
 	override val mainScene: KClass<out Scene> = MyScene1::class
 
-	override suspend fun init(injector: AsyncInjector): Unit = injector.run {
+	override suspend fun AsyncInjector.configure(): Unit {
 		mapInstance(MyDependency("HELLO WORLD"))
 		mapPrototype { MyScene1(get()) }
 		mapPrototype { MyScene2(get()) }
@@ -29,7 +29,7 @@ class MyScene1(val myDependency: MyDependency) : Scene() {
 	override suspend fun Container.sceneInit() {
 		text("MyScene1: ${myDependency.value}") { filtering = false }
 		solidRect(100, 100, Colors.RED) {
-			position(200, 200)
+			position(0, 0)
 			alpha = 0.7
 			onOver { alpha = 1.0 }
 			onOut { alpha = 0.7 }
