@@ -1,81 +1,63 @@
 import com.soywiz.korge.*
 import com.soywiz.korge.input.*
-import com.soywiz.korge.view.*
-import com.soywiz.korim.color.*
-import com.soywiz.korim.vector.*
-import com.soywiz.korma.geom.*
-import com.soywiz.korma.geom.vector.*
-import com.soywiz.korma.triangle.triangulate.*
+import com.soywiz.korge.Korge
+import com.soywiz.korge.scene.Module
+import com.soywiz.korge.scene.Scene
+import com.soywiz.korge.view.Container
+import com.soywiz.korge.view.position
+import com.soywiz.korge.view.solidRect
+import com.soywiz.korge.view.text
+import com.soywiz.korim.color.Colors
+import com.soywiz.korinject.AsyncInjector
+import kotlin.reflect.KClass
 
-suspend fun main() = Korge(width = 512, height = 512) {
-	val stage = this
-	text("Add Points by clicking with the mouse", 14.0).position(5.0, 5.0)
-	graphics {
-		val graphics = this
-		graphics.useNativeRendering = false
-		position(100, 100)
+suspend fun main() = Korge(Korge.Config(module = MyModule))
 
-		val points = arrayListOf<Point>()
+object MyModule : Module() {
+	override val mainScene: KClass<out Scene> = MyScene1::class
 
-		var additionalPoint: Point? = null
+	override suspend fun init(injector: AsyncInjector): Unit = injector.run {
+		mapInstance(MyDependency("HELLO WORLD"))
+		mapPrototype { MyScene1(get()) }
+		mapPrototype { MyScene2(get()) }
+	}
+}
 
-		fun repaint(finished: Boolean) {
-			clear()
-			/*
-			val path = VectorPath {
-				rect(0, 0, 100, 100)
-				rect(25, 25, 50, 50)
-			}
-			 */
+class MyDependency(val value: String)
 
-			val edges = points + listOfNotNull(additionalPoint)
-
-			for (point in edges) {
-				fill(Colors.RED) {
-					circle(point.x, point.y, 3.0)
-				}
-			}
-
-			if (finished) {
-				println("Points: $points")
-			}
-
-			if (points.size >= 3) {
-				stroke(Colors.GREEN, Context2d.StrokeInfo(thickness = 1.0)) {
-					for (triangle in points.triangulate()) {
-						val p0 = Point(triangle.p0)
-						val p1 = Point(triangle.p1)
-						val p2 = Point(triangle.p2)
-						line(p0, p1)
-						line(p1, p2)
-						line(p2, p0)
-					}
-				}
-			}
-
-			for (n in 0 until edges.size - 1) {
-				val e0 = Point(edges[n])
-				val e1 = Point(edges[n + 1])
-				val last = n == edges.size - 2
-				stroke(if (last) Colors.RED else Colors.BLUE, Context2d.StrokeInfo(thickness = 2.0)) {
-					line(e0, e1)
-				}
-			}
-		}
-
-		stage.mouse {
+class MyScene1(val myDependency: MyDependency) : Scene() {
+	override suspend fun Container.sceneInit() {
+		text("MyScene1: ${myDependency.value}") { filtering = false }
+		solidRect(100, 100, Colors.RED) {
+			position(200, 200)
+			alpha = 0.7
+			onOver { alpha = 1.0 }
+			onOut { alpha = 0.7 }
 			onClick {
-				points.add(graphics.localMouseXY(views))
-				repaint(finished = true)
-				//println("CLICK")
+				sceneContainer.changeTo<MyScene2>()
 			}
-
-			onMove {
-				additionalPoint = graphics.localMouseXY(views)
-				repaint(finished = false)
+		}
+		solidRect(100, 100, Colors.BLUE) {
+			position(250, 250)
+			alpha = 0.7
+			onOver { alpha = 1.0 }
+			onOut { alpha = 0.7 }
+			onClick {
+				sceneContainer.changeTo<MyScene2>()
 			}
 		}
 
-		repaint(finished = true)
+	}
+}
+
+class MyScene2(val myDependency: MyDependency) : Scene() {
+	override suspend fun Container.sceneInit() {
+		text("MyScene2: ${myDependency.value}") { filtering = false }
+		solidRect(100, 100, Colors.BLUE) {
+			position(200, 200)
+			onClick {
+				sceneContainer.changeTo<MyScene1>(MyDependency("From MyScene2"))
+			}
+		}
 	}
 }
