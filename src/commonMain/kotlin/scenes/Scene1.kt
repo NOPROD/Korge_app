@@ -14,7 +14,7 @@ import com.soywiz.korim.color.Colors
 class Scene1(val myDependency: MyDependency) : Scene() {
     override suspend fun Container.sceneInit() {
         text("MyScene1: ${myDependency.value}") { filtering = false }
-        solidRect(100, 100, Colors.RED) {
+        solidRect(100, 100, Colors.SNOW) {
             position(0, 0)
             alpha = 0.7
             onOver { alpha = 1.0 }
