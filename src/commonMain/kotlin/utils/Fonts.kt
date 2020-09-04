@@ -9,7 +9,7 @@ import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korio.stream.openSync
 import kotlin.jvm.JvmName
 
- suspend fun load(fontName:String, format:String="ttf"){
+ suspend fun write(fontName:String, format:String="ttf"){
     val fontFile :Font = TtfFont(resourcesVfs["fonts/$fontName.$format"].readAll().openSync())
      val bitmap = NativeImage(512, 128).apply {
          getContext2d().fillText("HELLO WORLD",font=fontFile, fontSize = 32.0, x = 0.0, y = 0.0, color = Colors.RED)

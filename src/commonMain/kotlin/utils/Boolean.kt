@@ -11,6 +11,5 @@ inline fun Boolean?.ifFalse(block: Boolean?.() -> Unit): Boolean? {
     if (null == this || !this) {
         block()
     }
-
     return this
 }
