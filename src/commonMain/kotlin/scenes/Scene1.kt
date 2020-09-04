@@ -1,6 +1,7 @@
 package scenes
 
 import `class`.MyDependency
+import com.soywiz.klogger.Logger
 import com.soywiz.korge.input.onClick
 import com.soywiz.korge.input.onOut
 import com.soywiz.korge.input.onOver
@@ -10,6 +11,8 @@ import com.soywiz.korge.view.position
 import com.soywiz.korge.view.solidRect
 import com.soywiz.korge.view.text
 import com.soywiz.korim.color.Colors
+
+private val logger = Logger(Scene1::class.qualifiedName!!)
 
 class Scene1(val myDependency: MyDependency) : Scene() {
     override suspend fun Container.sceneInit() {
@@ -24,7 +27,7 @@ class Scene1(val myDependency: MyDependency) : Scene() {
             }
         }
         solidRect(100, 100, Colors.BLUE) {
-            position(250, 250)
+            position(50, 50)
             alpha = 0.7
             onOver { alpha = 1.0 }
             onOut { alpha = 0.7 }
@@ -33,5 +36,9 @@ class Scene1(val myDependency: MyDependency) : Scene() {
             }
         }
 
+    }
+
+    override suspend fun sceneBeforeLeaving() {
+        logger.info(msg = { "Scene is destroyed" })
     }
 }
