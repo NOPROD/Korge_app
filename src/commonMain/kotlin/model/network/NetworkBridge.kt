@@ -1,10 +1,16 @@
 // Inspired From https://github.com/TobseF/MagicMaze-Island
 package model.network
 
+import Events.InputEvent
+import Events.InputEvent.Action
 import com.soywiz.klogger.Logger
 import com.soywiz.korinject.AsyncDependency
+import com.soywiz.korinject.AsyncInjector
 import com.soywiz.korio.net.ws.WebSocketClient
+import com.soywiz.korio.net.ws.readString
+import com.soywiz.korio.util.OS
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import model.World
 import utils.EventBus
 
@@ -17,8 +23,7 @@ class NetworkBridge(val bus: EventBus,
     val dummyHost = "ws://echo.websocket.org"
     val localHost = "localhost"
     val publicHost = "clean-code.rocks"
-    var host =  publicHost
-
+    var host = publicHost
 
 
     var socket: WebSocketClient? = null
@@ -35,14 +40,14 @@ class NetworkBridge(val bus: EventBus,
     }
 
     fun userId(): String {
-        return "${world.playersCount}-${world.selectedPlayer}"
+        return "${world.id}-${world.userId}"
     }
 
     private suspend fun handleInputEvent(event: InputEvent) {
         if (allowedEvents.contains(event.action)) {
             log.debug { "handleInputEvent$event" }
 
-            broadcastCommand("InputEvent", world.roomName, userId(), event.toDataString())
+            broadcastCommand("InputEvent", world.id, userId(), event.toDataString())
         }
     }
 
@@ -108,7 +113,7 @@ class NetworkBridge(val bus: EventBus,
         }
     }
 
-    fun nameId() = "${world.playersCount}-${world.selectedPlayer}"
+   fun nameId() = "${world.id}-${world.roomName}"
 
     suspend fun handleData(networkData: String) {
         log.debug { "handleData: $networkData" }

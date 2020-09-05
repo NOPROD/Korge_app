@@ -6,7 +6,7 @@ data class UpdateEvent(val update: Update)
 data class Update(val players: List<Player>) {
 
     companion object {
-        val action = "update"
+        const val action : String = "update"
 
         fun read(string: String): Update {
             return readCommandMessage(string.substringAfter("$action/"))
